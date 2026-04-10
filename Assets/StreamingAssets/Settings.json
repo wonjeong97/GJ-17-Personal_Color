@@ -1,0 +1,15 @@
+{
+  "warningTime": 20.0,
+  "resetTime": 33.0,
+  "closeSetting": {
+    "position": { "x": 1.0, "y": 1.0 },  
+    "numToClose": 10,
+    "resetClickTime": 3.0,
+    "imageAlpha": 0.0
+  },
+  "fadeTime": 0.5,
+  "fontMap": {
+  },
+  "sounds": [
+  ]
+}
