@@ -15,7 +15,7 @@ namespace My.Scripts.Global
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance;
-        
+
         [SerializeField] private Reporter reporter;
 
         private bool _isTransitioning;
@@ -27,12 +27,12 @@ namespace My.Scripts.Global
         /// 중복 생성을 방지하고 씬 전환 시 파괴되지 않도록 설정하기 위함.
         /// </summary>
         private void Awake()
-        {   
+        {
             if (!Instance)
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
-                
+
                 TimestampLogHandler.Attach();
             }
             else
@@ -48,11 +48,11 @@ namespace My.Scripts.Global
         {
             Cursor.visible = false;
             Application.runInBackground = true;
-            
+
             LoadSettings();
             if (reporter && reporter.show) reporter.show = false;
         }
-        
+
         /// <summary>
         /// 디버그 모드 전환 및 강제 씬 스킵 키보드 입력을 처리함.
         /// </summary>
@@ -63,7 +63,7 @@ namespace My.Scripts.Global
                 reporter.showGameManagerControl = !reporter.showGameManagerControl;
                 if (reporter.show) reporter.show = false;
             }
-            else if (Input.GetKeyDown(KeyCode.M)) 
+            else if (Input.GetKeyDown(KeyCode.M))
             {
                 Cursor.visible = !Cursor.visible;
             }
@@ -87,28 +87,25 @@ namespace My.Scripts.Global
         }
 
         /// <summary>
-        /// 페이드 아웃 연출을 동반하여 지정된 씬으로 이동함.
-        /// 중복 전환 요청을 막고 비동기 트랜지션을 시작하기 위함.
+        /// 페이드 아웃 연출을 동반하여 지정된 씬으로 이동한다.
+        /// 화면이 완전히 가려진 시점에 정리 작업을 수행하고, 새로운 씬의 준비 상태에 따라 페이드인을 지연시키기 위함.
         /// </summary>
         /// <param name="sceneName">이동할 대상 씬의 이름</param>
-        public void ChangeScene(string sceneName)
+        /// <param name="onFadeOutComplete">화면이 완전히 어두워졌을 때 실행할 정리 로직 (예: 웹캠 정지)</param>
+        /// <param name="autoFadeIn">새로운 씬 로드 후 자동으로 페이드인을 수행할지 여부</param>
+        public void ChangeScene(string sceneName, System.Action onFadeOutComplete = null, bool autoFadeIn = true)
         {
             if (_isTransitioning) return;
 
             _isTransitioning = true;
-            _transitionRoutine = StartCoroutine(ChangeSceneRoutine(sceneName));
+            _transitionRoutine = StartCoroutine(ChangeSceneRoutine(sceneName, onFadeOutComplete, autoFadeIn));
         }
 
-        /// <summary>
-        /// 실제 씬 전환과 페이드 효과를 비동기로 제어하는 코루틴.
-        /// 화면이 완전히 어두워진 후 씬을 로드하여 시각적 끊김을 방지하기 위함.
-        /// </summary>
-        /// <param name="sceneName">이동할 대상 씬의 이름</param>
-        private IEnumerator ChangeSceneRoutine(string sceneName)
+        private IEnumerator ChangeSceneRoutine(string sceneName, System.Action onFadeOutComplete, bool autoFadeIn)
         {
-            // FadeManager가 씬에 없을 경우 즉시 씬 로드 수행
             if (!FadeManager.Instance)
             {
+                onFadeOutComplete?.Invoke();
                 SceneManager.LoadScene(sceneName);
                 _isTransitioning = false;
                 yield break;
@@ -116,20 +113,40 @@ namespace My.Scripts.Global
 
             bool fadeDone = false;
             FadeManager.Instance.FadeOut(_fadeTime, () => { fadeDone = true; });
-        
-            while (!fadeDone) 
+
+            while (!fadeDone)
             {
                 yield return null;
             }
+
+            // 화면이 완전히 블랙인 상태에서 웹캠 정지 등 무거운 정리 작업을 수행함
+            onFadeOutComplete?.Invoke();
 
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
-            while (asyncLoad != null && !asyncLoad.isDone) 
+            while (asyncLoad != null && !asyncLoad.isDone)
             {
                 yield return null;
             }
 
-            FadeManager.Instance.FadeIn(_fadeTime);
+            // 새로운 씬에서 웹캠 등이 준비될 때까지 기다려야 할 경우 자동 페이드인을 건너뜀
+            if (autoFadeIn)
+            {
+                FadeManager.Instance.FadeIn(_fadeTime);
+            }
+
             _isTransitioning = false;
+        }
+
+        /// <summary>
+        /// 외부에서 수동으로 페이드인을 호출한다.
+        /// 특정 씬(예: 캡처 씬)에서 하드웨어 준비가 완료된 시점에 화면을 보여주기 위함.
+        /// </summary>
+        public void ManualFadeIn()
+        {
+            if (FadeManager.Instance)
+            {
+                FadeManager.Instance.FadeIn(_fadeTime);
+            }
         }
     }
 }
