@@ -60,6 +60,7 @@ namespace My.Scripts._2_Capture
 
         [Header("Page2 - Analysis")]
         [SerializeField] private Text loadingPercentageText;
+        [SerializeField] private LoadingUIController loadingUIController;
 
         [Header("Page3 - UI")]
         [SerializeField] private Button homeButton;
@@ -420,7 +421,7 @@ namespace My.Scripts._2_Capture
 
             for (int row = 0; row < srcH; row++)
             {
-                System.Array.Copy(
+                Array.Copy(
                     rawPixels, (srcY + row) * fullW + srcX,
                     croppedPixels, row * srcW, srcW);
             }
@@ -636,7 +637,7 @@ namespace My.Scripts._2_Capture
         {
             if (!tex) return;
 
-            string fileName = $"ColorCard_{System.DateTime.Now:yyyyMMdd_HHmmss}.png";
+            string fileName = $"ColorCard_{DateTime.Now:yyyyMMdd_HHmmss}.png";
             string path = System.IO.Path.Combine(Application.persistentDataPath, fileName);
             byte[] png = tex.EncodeToPNG();
             System.IO.File.WriteAllBytes(path, png);
@@ -644,18 +645,25 @@ namespace My.Scripts._2_Capture
         }
 
         /// <summary>
-        /// 로딩 텍스트를 0%에서 100%로 애니메이션한다.
-        /// 로직 소요 시간에 맞춰 퍼센트 증가 속도를 자연스럽게 동기화하기 위함.
+        /// 로딩 텍스트와 외곽 링 UI를 0%에서 100%로 애니메이션한다.
+        /// 분석 로직 소요 시간에 맞춰 텍스트와 시각적 진행률을 동기화하기 위함.
         /// </summary>
         private IEnumerator AnimateLoadingText()
         {
-            if (!loadingPercentageText) yield break;
+            if (loadingPercentageText)
+            {
+                loadingPercentageText.text = "0%";
+            }
 
-            loadingPercentageText.text = "0%";
+            if (loadingUIController)
+            {
+                loadingUIController.SetProgress(0f);
+            }
+
             yield return CoroutineData.GetWaitForSeconds(0.5f);
 
             float elapsed = 0f;
-            float currentDuration = 9.5f; // 초기 예상 시간 (최소 10초 - 0.5초 대기)
+            float currentDuration = 9.5f;
 
             while (true)
             {
@@ -663,7 +671,6 @@ namespace My.Scripts._2_Capture
 
                 if (_isLogicComplete)
                 {
-                    // 로직이 끝났다면 확정된 최종 대기 시간으로 목표를 갱신함
                     currentDuration = _targetLoadingTime - 0.5f;
                     if (elapsed >= currentDuration)
                     {
@@ -672,19 +679,36 @@ namespace My.Scripts._2_Capture
                 }
                 else if (elapsed >= currentDuration * 0.9f)
                 {
-                    // 통신 지연 등으로 로직이 예상(10초)보다 길어질 경우, 
-                    // 90% 구간에서 목표 시간을 계속 늘려 100%에 조기 도달하는 것을 막음
                     currentDuration += Time.deltaTime * 10f; 
                 }
 
-                // 0 ~ 99 사이의 정수형 퍼센트 계산
-                int percent = Mathf.Clamp(Mathf.RoundToInt((elapsed / currentDuration) * 100f), 0, 99);
-                loadingPercentageText.text = $"{percent}%";
+                // 진행률 비율(0.0f ~ 1.0f)을 계산함
+                float progressRatio = elapsed / currentDuration;
+                int percent = Mathf.Clamp(Mathf.RoundToInt(progressRatio * 100f), 0, 99);
+                
+                if (loadingPercentageText)
+                {
+                    loadingPercentageText.text = $"{percent}%";
+                }
+
+                // 텍스트와 동일한 비율로 링 UI의 FillAmount를 갱신함
+                if (loadingUIController)
+                {
+                    loadingUIController.SetProgress(progressRatio);
+                }
                 
                 yield return null;
             }
 
-            loadingPercentageText.text = "100%";
+            if (loadingPercentageText)
+            {
+                loadingPercentageText.text = "100%";
+            }
+
+            if (loadingUIController)
+            {
+                loadingUIController.SetProgress(1f);
+            }
         }
 
         // ─────────────────────────────────────────────────────────
