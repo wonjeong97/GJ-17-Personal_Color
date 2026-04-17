@@ -1105,6 +1105,7 @@ MonoBehaviour:
   reporter: {fileID: 1662363759}
   uiAudioSource: {fileID: 2129322768}
   defaultClickSound: {fileID: 8300000, guid: 4c770afc70dbd0c45acea15bf9a639fe, type: 3}
+  shutterSound: {fileID: 8300000, guid: 5d877e244f9a8d540bd82ea3d68b176d, type: 3}
 --- !u!82 &2129322768
 AudioSource:
   m_ObjectHideFlags: 0
