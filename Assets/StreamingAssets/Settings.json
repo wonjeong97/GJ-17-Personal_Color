@@ -1,0 +1,11 @@
+{
+  "closeSetting": {
+    "position": { "x": 1.0, "y": 1.0 },  
+    "numToClose": 10,
+    "resetClickTime": 3.0,
+    "imageAlpha": 0.0
+  },
+  "fadeTime": 0.5,
+  "showDebugPoints": false,
+  "debugPointSize": 10
+}
