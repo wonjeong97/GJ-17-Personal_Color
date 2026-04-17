@@ -20,7 +20,11 @@ namespace My.Scripts._0_Title
                 return;
             }
 
-            // 사용자의 명시적인 진입 액션을 처리하기 위해 클릭 이벤트를 연결함
+            if (GameManager.Instance)
+            {
+                startButton.onClick.AddListener(GameManager.Instance.PlayClickSound);
+            }
+            
             startButton.onClick.AddListener(LoadDescriptionScene);
         }
 

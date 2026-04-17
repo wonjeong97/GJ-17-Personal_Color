@@ -17,6 +17,11 @@ namespace My.Scripts.Global
         public static GameManager Instance;
 
         [SerializeField] private Reporter reporter;
+        
+        [Header("Sound")]
+        [SerializeField] private AudioSource uiAudioSource;
+        [SerializeField] private AudioClip defaultClickSound;
+        [SerializeField] private AudioClip shutterSound;
 
         private bool _isTransitioning;
         private float _fadeTime = 0.5f;
@@ -32,6 +37,13 @@ namespace My.Scripts.Global
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
+                
+                // 오디오 소스 컴포넌트가 없는 경우 자동 추가
+                if (!uiAudioSource)
+                {
+                    uiAudioSource = gameObject.AddComponent<AudioSource>();
+                    uiAudioSource.playOnAwake = false;
+                }
 
                 TimestampLogHandler.Attach();
             }
@@ -146,6 +158,39 @@ namespace My.Scripts.Global
             if (FadeManager.Instance)
             {
                 FadeManager.Instance.FadeIn(_fadeTime);
+            }
+        }
+        
+                
+        /// <summary>
+        /// UI 기본 클릭음을 재생한다.
+        /// 씬 전환 애니메이션 중에도 사운드가 끊기지 않도록 전역 매니저에서 오디오를 처리하기 위함.
+        /// </summary>
+        public void PlayClickSound()
+        {
+            if (uiAudioSource && defaultClickSound)
+            {
+                uiAudioSource.PlayOneShot(defaultClickSound);
+            }
+            else
+            {
+                Debug.LogWarning("uiAudioSource 또는 defaultClickSound가 할당되지 않았습니다.");
+            }
+        }
+        
+        /// <summary>
+        /// 사진 촬영 시 셔터 효과음을 재생한다.
+        /// 캡처 버튼 클릭 후 실제 데이터가 처리되는 시점에 청각적 피드백을 제공하기 위함.
+        /// </summary>
+        public void PlayShutterSound()
+        {
+            if (uiAudioSource && shutterSound)
+            {
+                uiAudioSource.PlayOneShot(shutterSound);
+            }
+            else
+            {
+                Debug.LogWarning("uiAudioSource 또는 shutterSound가 할당되지 않았습니다.");
             }
         }
     }

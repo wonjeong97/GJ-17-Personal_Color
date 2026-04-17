@@ -133,10 +133,19 @@ namespace My.Scripts._2_Capture
             InitPages();
             StartWebcam();
             countdownText.text = "촬영하기";
+
+            if (GameManager.Instance)
+            {
+                captureButton.onClick.AddListener(GameManager.Instance.PlayClickSound);
+            }
             captureButton.onClick.AddListener(OnCaptureButtonClicked);
 
             if (homeButton)
             {
+                if (GameManager.Instance)
+                {
+                    homeButton.onClick.AddListener(GameManager.Instance.PlayClickSound);
+                }
                 homeButton.onClick.AddListener(LoadTitleScene);
             }
         }
@@ -350,11 +359,13 @@ namespace My.Scripts._2_Capture
             for (int count = 5; count >= 1; count--)
             {
                 countdownText.text = count.ToString();
-                yield return new WaitForSeconds(1f);
+                yield return CoroutineData.GetWaitForSeconds(1f);
             }
 
             countdownText.gameObject.SetActive(false);
             CaptureFrame();
+            
+            yield return CoroutineData.GetWaitForSeconds(1f);
 
             // Page1 → Page2 전환 후 분석 시작
             yield return StartCoroutine(FadeToPage(page1, page2));
@@ -370,6 +381,11 @@ namespace My.Scripts._2_Capture
         private void CaptureFrame()
         {
             if (!_webcamTexture) return;
+            
+            if (GameManager.Instance)
+            {
+                GameManager.Instance.PlayShutterSound();
+            }
 
             _webcamTexture.Pause();
 
@@ -515,6 +531,7 @@ namespace My.Scripts._2_Capture
                 loadingPercentageText.text = "100%";
             }
 
+            yield return CoroutineData.GetWaitForSeconds(1f);
             yield return StartCoroutine(FadeToPage(page2, page3));
         }
 
@@ -635,7 +652,7 @@ namespace My.Scripts._2_Capture
             if (!loadingPercentageText) yield break;
 
             loadingPercentageText.text = "0%";
-            yield return new WaitForSeconds(0.5f);
+            yield return CoroutineData.GetWaitForSeconds(0.5f);
 
             float elapsed = 0f;
             float currentDuration = 9.5f; // 초기 예상 시간 (최소 10초 - 0.5초 대기)

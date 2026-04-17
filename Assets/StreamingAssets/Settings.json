@@ -5,6 +5,7 @@
     "resetClickTime": 3.0,
     "imageAlpha": 0.0
   },
+  "fadeTime": 0.5,
   "showDebugPoints": false,
   "debugPointSize": 10
 }

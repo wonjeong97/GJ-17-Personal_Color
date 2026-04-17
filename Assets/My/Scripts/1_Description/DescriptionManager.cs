@@ -33,11 +33,16 @@ namespace My.Scripts._1_Description
                 return;
             }
 
-            // 초기 상태 설정: 페이지 1 활성화, 페이지 2 비활성화
             page1.SetActive(true);
             page2.SetActive(false);
 
-            // 이벤트 리스너 등록
+            if (GameManager.Instance)
+            {
+                nextButton.onClick.AddListener(GameManager.Instance.PlayClickSound);
+                startCaptureButton.onClick.AddListener(GameManager.Instance.PlayClickSound);
+                homeButton.onClick.AddListener(GameManager.Instance.PlayClickSound);
+            }
+
             nextButton.onClick.AddListener(ShowPage2);
             startCaptureButton.onClick.AddListener(LoadCaptureScene);
             homeButton.onClick.AddListener(LoadTitleScene);

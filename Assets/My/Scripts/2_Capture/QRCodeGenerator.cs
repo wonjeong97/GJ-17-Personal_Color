@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
+using Wonjeong.Utils;
 
 namespace My.Scripts._2_Capture
 {
@@ -50,7 +51,7 @@ namespace My.Scripts._2_Capture
                     {
                         Debug.LogWarning($"QR 생성 API 호출 실패 ({attempt + 1}/{maxRetries}): {req.error}. {retryDelay}초 후 재시도합니다.");
                         // 서버 부하 및 연속적인 통신 충돌을 막기 위해 지정된 시간만큼 대기함
-                        yield return new WaitForSeconds(retryDelay);
+                        yield return CoroutineData.GetWaitForSeconds(retryDelay);
                     }
                     else
                     {
