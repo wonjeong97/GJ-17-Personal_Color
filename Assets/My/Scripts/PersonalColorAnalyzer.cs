@@ -7,9 +7,9 @@ using Mediapipe.Tasks.Vision.FaceLandmarker;
 using Mediapipe.Tasks.Vision.ImageSegmenter;
 using MpImage = Mediapipe.Image;
 
-/// <summary>
-/// 캡처된 이미지에서 피부색, 눈동자색, 머리카락색을 분석한다.
-/// </summary>
+namespace My.Scripts._2_Capture
+{
+
 public class PersonalColorAnalyzer : MonoBehaviour
 {
     [Header("Models")]
@@ -295,4 +295,5 @@ public class PersonalColorAnalyzer : MonoBehaviour
         UnityEngine.Color32 c32 = (UnityEngine.Color32)c;
         return $"#{c32.r:X2}{c32.g:X2}{c32.b:X2}";
     }
+}
 }

@@ -1,11 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// 로딩 화면의 UI 애니메이션을 제어한다.
-/// 외부에서 전달받은 진행률에 따라 외곽 링의 FillAmount를 채우고, 
-/// 내부 별들은 무작위 타이밍으로 크기를 조절하여 시각적 단조로움을 피하기 위함.
-/// </summary>
+namespace My.Scripts._2_Capture
+{
+
 public class LoadingUIController : MonoBehaviour
 {
     [Header("UI Components")]
@@ -85,4 +83,5 @@ public class LoadingUIController : MonoBehaviour
             outerRing.fillAmount = Mathf.Clamp01(progress);
         }
     }
+}
 }

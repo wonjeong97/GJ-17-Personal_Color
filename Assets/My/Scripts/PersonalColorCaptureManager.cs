@@ -5,6 +5,7 @@ using Mediapipe;
 using Mediapipe.Unity;
 using Mediapipe.Unity.Experimental;
 using Mediapipe.Tasks.Vision.ImageSegmenter;
+using My.Scripts._2_Capture;
 using MpImage = Mediapipe.Image;
 using Rect = UnityEngine.Rect;
 
