@@ -27,6 +27,9 @@ namespace My.Scripts.Global
         private float _fadeTime = 0.5f;
         private Coroutine _transitionRoutine;
 
+        private const float IdleTimeout = 60f;
+        private float _idleTimer;
+
         /// <summary>
         /// 싱글톤 인스턴스를 초기화하고 전역 상태를 유지함.
         /// 중복 생성을 방지하고 씬 전환 시 파괴되지 않도록 설정하기 위함.
@@ -65,9 +68,6 @@ namespace My.Scripts.Global
             if (reporter && reporter.show) reporter.show = false;
         }
 
-        /// <summary>
-        /// 디버그 모드 전환 및 강제 씬 스킵 키보드 입력을 처리함.
-        /// </summary>
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.D) && reporter)
@@ -78,6 +78,27 @@ namespace My.Scripts.Global
             else if (Input.GetKeyDown(KeyCode.M))
             {
                 Cursor.visible = !Cursor.visible;
+            }
+
+            UpdateIdleTimer();
+        }
+
+        private void UpdateIdleTimer()
+        {
+            bool isTitle = SceneManager.GetActiveScene().name == GameConstants.Scene.Title;
+            if (isTitle || _isTransitioning) return;
+
+            if (Input.anyKey || Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.touchCount > 0)
+            {
+                _idleTimer = 0f;
+                return;
+            }
+
+            _idleTimer += Time.deltaTime;
+            if (_idleTimer >= IdleTimeout)
+            {
+                _idleTimer = 0f;
+                ChangeScene(GameConstants.Scene.Title);
             }
         }
 

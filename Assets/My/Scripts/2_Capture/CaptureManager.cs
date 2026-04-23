@@ -76,7 +76,7 @@ namespace My.Scripts._2_Capture
             webcamController.OnWebcamReady += OnWebcamReady;
             webcamController.StartWebcam();
 
-            if (countdownText) countdownText.text = "촬영하기";
+            if (countdownText) countdownText.text = "";
 
             if (GameManager.Instance)
             {
@@ -164,7 +164,7 @@ namespace My.Scripts._2_Capture
 
             for (int count = 5; count >= 1; count--)
             {
-                countdownText.text = count.ToString();
+                countdownText.text = count.ToString()+"초";
                 yield return CoroutineData.GetWaitForSeconds(1f);
             }
 

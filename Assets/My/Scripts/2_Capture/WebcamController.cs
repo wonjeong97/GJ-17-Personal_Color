@@ -10,8 +10,8 @@ namespace My.Scripts._2_Capture
     public class WebcamController : MonoBehaviour
     {
         [SerializeField] private RawImage previewImage;
-        [SerializeField] private int webcamWidth = 1920;
-        [SerializeField] private int webcamHeight = 1080;
+        [SerializeField] private int webcamWidth = 1024;
+        [SerializeField] private int webcamHeight = 576;
         [SerializeField] private int webcamFps = 30;
 
         private WebCamTexture _webcamTexture;
